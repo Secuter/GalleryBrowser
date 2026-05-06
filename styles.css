@@ -22,18 +22,19 @@ body {
     radial-gradient(circle at 8% 12%, rgba(202, 63, 25, 0.2), transparent 40%),
     radial-gradient(circle at 85% 75%, rgba(31, 115, 80, 0.18), transparent 42%),
     linear-gradient(130deg, var(--bg-a), var(--bg-b));
-  padding: 10px;
+  padding: 0;
 }
 
 .app-shell {
-  width: min(1320px, 100%);
-  min-height: calc(100vh - 20px);
+  width: min(1600px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
   background: var(--panel);
   border: 1px solid var(--panel-border);
-  border-radius: 16px;
+  border-radius: 0;
   box-shadow: var(--shadow);
   backdrop-filter: blur(6px);
-  padding: 12px;
+  padding: 10px;
   display: grid;
   grid-template-rows: auto auto 1fr;
   gap: 8px;
@@ -49,7 +50,7 @@ body {
   gap: 8px;
 }
 
-input[type="url"] {
+#url-input {
   width: 100%;
   border: 1px solid rgba(27, 29, 34, 0.2);
   border-radius: 10px;
@@ -115,7 +116,7 @@ button:disabled {
 }
 
 .image-stage {
-  min-height: calc(100vh - 130px);
+  min-height: calc(100vh - 118px);
   background:
     repeating-linear-gradient(
       45deg,
@@ -133,7 +134,7 @@ button:disabled {
 
 #gallery-image {
   max-width: 100%;
-  max-height: calc(100vh - 150px);
+  max-height: calc(100vh - 130px);
   object-fit: contain;
   display: none;
 }
