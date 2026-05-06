@@ -11,11 +11,7 @@
 </head>
 <body>
   <main class="app-shell">
-    <h1>Gallery Browser</h1>
-    <p class="subtitle">Incolla un URL immagine. Se non contiene <strong>{}</strong>, il pattern viene rilevato automaticamente.</p>
-
     <form id="pattern-form" class="controls" autocomplete="off">
-      <label for="url-input">URL immagine o pattern</label>
       <div class="input-row">
         <input
           id="url-input"
@@ -28,10 +24,9 @@
       </div>
     </form>
 
-    <section class="status-panel">
-      <p><span class="label">Pattern attivo:</span> <span id="pattern-output">-</span></p>
-      <p><span class="label">Indice:</span> <span id="index-output">-</span></p>
-      <p id="message" aria-live="polite"></p>
+    <section class="status-bar" aria-live="polite">
+      <span id="index-output">Indice: -</span>
+      <span id="message"></span>
     </section>
 
     <section class="viewer" aria-label="Visualizzatore immagini">

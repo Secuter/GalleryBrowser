@@ -1,6 +1,5 @@
 const form = document.getElementById("pattern-form");
 const urlInput = document.getElementById("url-input");
-const patternOutput = document.getElementById("pattern-output");
 const indexOutput = document.getElementById("index-output");
 const message = document.getElementById("message");
 const image = document.getElementById("gallery-image");
@@ -73,8 +72,7 @@ function resetNavigationState() {
 }
 
 function updateUi() {
-  patternOutput.textContent = state.pattern || "-";
-  indexOutput.textContent = state.pattern ? String(state.currentIndex) : "-";
+  indexOutput.textContent = state.pattern ? `Indice: ${state.currentIndex}` : "Indice: -";
   prevBtn.disabled = !state.pattern || state.currentIndex <= 1;
   nextBtn.disabled = !state.pattern || (state.maxIndex !== null && state.currentIndex >= state.maxIndex);
 }
@@ -170,6 +168,7 @@ async function handleSubmit(event) {
   state.pattern = pattern;
   state.placeholders = placeholders;
   resetNavigationState();
+  urlInput.value = pattern;
 
   setMessage("Pattern caricato. Provo a mostrare la prima immagine...");
   updateUi();
