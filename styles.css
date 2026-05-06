@@ -26,9 +26,9 @@ body {
 }
 
 .app-shell {
-  width: min(1600px, 100%);
+  width: 100%;
   min-height: 100vh;
-  margin: 0 auto;
+  margin: 0;
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 0;
