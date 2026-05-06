@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery Browser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <h1>Gallery Browser</h1>
+    <p class="subtitle">Incolla un URL immagine. Se non contiene <strong>{}</strong>, il pattern viene rilevato automaticamente.</p>
+
+    <form id="pattern-form" class="controls" autocomplete="off">
+      <label for="url-input">URL immagine o pattern</label>
+      <div class="input-row">
+        <input
+          id="url-input"
+          name="url"
+          type="url"
+          required
+          placeholder="https://example.com/gallery/image_01.jpg"
+        />
+        <button type="submit">Invia</button>
+      </div>
+    </form>
+
+    <section class="status-panel">
+      <p><span class="label">Pattern attivo:</span> <span id="pattern-output">-</span></p>
+      <p><span class="label">Indice:</span> <span id="index-output">-</span></p>
+      <p id="message" aria-live="polite"></p>
+    </section>
+
+    <section class="viewer" aria-label="Visualizzatore immagini">
+      <button id="prev-btn" class="nav-btn" type="button" aria-label="Immagine precedente">&#8592;</button>
+      <div class="image-stage">
+        <img id="gallery-image" alt="Anteprima galleria" />
+      </div>
+      <button id="next-btn" class="nav-btn" type="button" aria-label="Immagine successiva">&#8594;</button>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
