@@ -5,6 +5,11 @@ const message = document.getElementById("message");
 const image = document.getElementById("gallery-image");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
+const themeMode = document.getElementById("theme-mode");
+
+const THEME_STORAGE_KEY = "gallery-theme";
+const root = document.documentElement;
+const darkSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
 const state = {
   pattern: "",
@@ -13,6 +18,49 @@ const state = {
   maxIndex: null,
   cache: new Map(),
 };
+
+function normalizeThemeMode(value) {
+  if (value === "auto" || value === "light" || value === "dark") {
+    return value;
+  }
+
+  return "auto";
+}
+
+const themeState = {
+  mode: normalizeThemeMode(localStorage.getItem(THEME_STORAGE_KEY)),
+};
+
+function getSystemTheme() {
+  return darkSchemeQuery.matches ? "dark" : "light";
+}
+
+function getActiveTheme() {
+  return themeState.mode === "auto" ? getSystemTheme() : themeState.mode;
+}
+
+function applyTheme(theme) {
+  root.setAttribute("data-theme", theme);
+}
+
+function initializeTheme() {
+  themeMode.value = themeState.mode;
+  applyTheme(getActiveTheme());
+}
+
+function handleThemeModeChange() {
+  themeState.mode = normalizeThemeMode(themeMode.value);
+  localStorage.setItem(THEME_STORAGE_KEY, themeState.mode);
+  applyTheme(getActiveTheme());
+}
+
+function handleSystemThemeChange() {
+  if (themeState.mode !== "auto") {
+    return;
+  }
+
+  applyTheme(getSystemTheme());
+}
 
 function setMessage(text) {
   message.textContent = text;
@@ -207,5 +255,8 @@ async function goNext() {
 form.addEventListener("submit", handleSubmit);
 prevBtn.addEventListener("click", goPrevious);
 nextBtn.addEventListener("click", goNext);
+themeMode.addEventListener("change", handleThemeModeChange);
+darkSchemeQuery.addEventListener("change", handleSystemThemeChange);
 
+initializeTheme();
 updateUi();
