@@ -116,16 +116,23 @@ button[type="submit"] {
 }
 
 .theme-switch label {
-  min-width: 68px;
+  min-width: 42px;
+  min-height: 34px;
+  display: grid;
+  place-items: center;
   text-align: center;
-  padding: 7px 8px;
+  padding: 6px;
   border-radius: 9px;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
   transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+.theme-icon {
+  line-height: 1;
 }
 
 .theme-switch input:checked + label {

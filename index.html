@@ -22,16 +22,27 @@
           required
           placeholder="https://example.com/gallery/image_01.jpg"
         />
+        
+        <button type="submit">Invia</button>
+
         <fieldset class="theme-switch" aria-label="Seleziona tema">
           <legend class="sr-only">Tema</legend>
           <input type="radio" name="theme-mode" id="theme-light" value="light" />
-          <label for="theme-light">Light</label>
+          <label for="theme-light" aria-label="Tema chiaro" title="Tema chiaro">
+            <span class="theme-icon" aria-hidden="true">☀</span>
+            <span class="sr-only">Tema chiaro</span>
+          </label>
           <input type="radio" name="theme-mode" id="theme-auto" value="auto" />
-          <label for="theme-auto">Auto</label>
+          <label for="theme-auto" aria-label="Tema automatico" title="Tema automatico">
+            <span class="theme-icon" aria-hidden="true">◐</span>
+            <span class="sr-only">Tema automatico</span>
+          </label>
           <input type="radio" name="theme-mode" id="theme-dark" value="dark" />
-          <label for="theme-dark">Dark</label>
+          <label for="theme-dark" aria-label="Tema scuro" title="Tema scuro">
+            <span class="theme-icon" aria-hidden="true">☾</span>
+            <span class="sr-only">Tema scuro</span>
+          </label>
         </fieldset>
-        <button type="submit">Invia</button>
       </div>
     </form>
 
