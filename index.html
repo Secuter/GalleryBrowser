@@ -22,15 +22,16 @@
           required
           placeholder="https://example.com/gallery/image_01.jpg"
         />
+        <fieldset class="theme-switch" aria-label="Seleziona tema">
+          <legend class="sr-only">Tema</legend>
+          <input type="radio" name="theme-mode" id="theme-light" value="light" />
+          <label for="theme-light">Light</label>
+          <input type="radio" name="theme-mode" id="theme-auto" value="auto" />
+          <label for="theme-auto">Auto</label>
+          <input type="radio" name="theme-mode" id="theme-dark" value="dark" />
+          <label for="theme-dark">Dark</label>
+        </fieldset>
         <button type="submit">Invia</button>
-      </div>
-      <div class="toolbar-row">
-        <label class="theme-control" for="theme-mode">Tema</label>
-        <select id="theme-mode" class="theme-select" aria-label="Seleziona il tema">
-          <option value="auto">Automatico (sistema)</option>
-          <option value="light">Chiaro</option>
-          <option value="dark">Scuro</option>
-        </select>
       </div>
     </form>
 

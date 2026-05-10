@@ -5,7 +5,7 @@ const message = document.getElementById("message");
 const image = document.getElementById("gallery-image");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
-const themeMode = document.getElementById("theme-mode");
+const themeModeInputs = [...document.querySelectorAll('input[name="theme-mode"]')];
 
 const THEME_STORAGE_KEY = "gallery-theme";
 const root = document.documentElement;
@@ -44,12 +44,21 @@ function applyTheme(theme) {
 }
 
 function initializeTheme() {
-  themeMode.value = themeState.mode;
+  const selectedThemeInput = themeModeInputs.find((input) => input.value === themeState.mode);
+  if (selectedThemeInput) {
+    selectedThemeInput.checked = true;
+  }
+
   applyTheme(getActiveTheme());
 }
 
-function handleThemeModeChange() {
-  themeState.mode = normalizeThemeMode(themeMode.value);
+function handleThemeModeChange(event) {
+  const target = event.target;
+  if (!target || target.name !== "theme-mode") {
+    return;
+  }
+
+  themeState.mode = normalizeThemeMode(target.value);
   localStorage.setItem(THEME_STORAGE_KEY, themeState.mode);
   applyTheme(getActiveTheme());
 }
@@ -255,7 +264,9 @@ async function goNext() {
 form.addEventListener("submit", handleSubmit);
 prevBtn.addEventListener("click", goPrevious);
 nextBtn.addEventListener("click", goNext);
-themeMode.addEventListener("change", handleThemeModeChange);
+themeModeInputs.forEach((input) => {
+  input.addEventListener("change", handleThemeModeChange);
+});
 darkSchemeQuery.addEventListener("change", handleSystemThemeChange);
 
 initializeTheme();
