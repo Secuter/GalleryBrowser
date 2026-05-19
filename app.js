@@ -5,7 +5,7 @@ const message = document.getElementById("message");
 const image = document.getElementById("gallery-image");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
-const querySyncInput = document.getElementById("query-sync");
+const querySyncToggleBtn = document.getElementById("query-sync-toggle");
 const themeModeInputs = [...document.querySelectorAll('input[name="theme-mode"]')];
 
 const THEME_STORAGE_KEY = "gallery-theme";
@@ -20,6 +20,7 @@ const state = {
   currentIndex: 1,
   maxIndex: null,
   cache: new Map(),
+  querySyncEnabled: false,
 };
 
 function normalizeThemeMode(value) {
@@ -137,6 +138,17 @@ function updateUi() {
   nextBtn.disabled = !state.pattern || (state.maxIndex !== null && state.currentIndex >= state.maxIndex);
 }
 
+function setQuerySyncEnabled(enabled) {
+  state.querySyncEnabled = Boolean(enabled);
+
+  if (!querySyncToggleBtn) {
+    return;
+  }
+
+  querySyncToggleBtn.setAttribute("aria-pressed", String(state.querySyncEnabled));
+  querySyncToggleBtn.textContent = state.querySyncEnabled ? "★" : "☆";
+}
+
 function parseStartIndex(rawValue) {
   const parsed = Number.parseInt(rawValue, 10);
   if (!Number.isInteger(parsed) || parsed < 1) {
@@ -172,7 +184,7 @@ function parsePatternInput(input) {
 function syncPatternToQuery() {
   const params = new URLSearchParams(window.location.search);
 
-  if (querySyncInput.checked && state.pattern) {
+  if (state.querySyncEnabled && state.pattern) {
     params.set(URL_PATTERN_PARAM, state.pattern);
     params.set(URL_INDEX_PARAM, String(state.currentIndex));
   } else {
@@ -218,8 +230,13 @@ async function initializeFromQuery() {
     return;
   }
 
-  querySyncInput.checked = true;
+  setQuerySyncEnabled(true);
   await loadPattern(startup.pattern, startup.index, "Pattern caricato dall'URL.");
+}
+
+function handleQuerySyncToggle() {
+  setQuerySyncEnabled(!state.querySyncEnabled);
+  syncPatternToQuery();
 }
 
 function probeImage(url) {
@@ -350,7 +367,7 @@ function handleArrowNavigation(event) {
 form.addEventListener("submit", handleSubmit);
 prevBtn.addEventListener("click", goPrevious);
 nextBtn.addEventListener("click", goNext);
-querySyncInput.addEventListener("change", syncPatternToQuery);
+querySyncToggleBtn.addEventListener("click", handleQuerySyncToggle);
 window.addEventListener("keydown", handleArrowNavigation);
 themeModeInputs.forEach((input) => {
   input.addEventListener("change", handleThemeModeChange);
@@ -358,5 +375,6 @@ themeModeInputs.forEach((input) => {
 darkSchemeQuery.addEventListener("change", handleSystemThemeChange);
 
 initializeTheme();
+setQuerySyncEnabled(false);
 updateUi();
 void initializeFromQuery();
