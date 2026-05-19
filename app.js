@@ -1,11 +1,12 @@
 const form = document.getElementById("pattern-form");
 const urlInput = document.getElementById("url-input");
-const indexOutput = document.getElementById("index-output");
+// const indexOutput = document.getElementById("index-output");
 const message = document.getElementById("message");
 const image = document.getElementById("gallery-image");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
 const querySyncToggleBtn = document.getElementById("query-sync-toggle");
+const querySyncInput = document.getElementById("query-sync");
 const themeModeInputs = [...document.querySelectorAll('input[name="theme-mode"]')];
 
 const THEME_STORAGE_KEY = "gallery-theme";
@@ -133,7 +134,7 @@ function resetNavigationState() {
 }
 
 function updateUi() {
-  indexOutput.textContent = state.pattern ? `Indice: ${state.currentIndex}` : "Indice: -";
+  // indexOutput.textContent = state.pattern ? `Indice: ${state.currentIndex}` : "Indice: -";
   prevBtn.disabled = !state.pattern || state.currentIndex <= 1;
   nextBtn.disabled = !state.pattern || (state.maxIndex !== null && state.currentIndex >= state.maxIndex);
 }
@@ -141,12 +142,14 @@ function updateUi() {
 function setQuerySyncEnabled(enabled) {
   state.querySyncEnabled = Boolean(enabled);
 
-  if (!querySyncToggleBtn) {
-    return;
+  if (querySyncToggleBtn) {
+    querySyncToggleBtn.setAttribute("aria-pressed", String(state.querySyncEnabled));
+    querySyncToggleBtn.textContent = state.querySyncEnabled ? "★" : "☆";
   }
 
-  querySyncToggleBtn.setAttribute("aria-pressed", String(state.querySyncEnabled));
-  querySyncToggleBtn.textContent = state.querySyncEnabled ? "★" : "☆";
+  if (querySyncInput) {
+    querySyncInput.checked = state.querySyncEnabled;
+  }
 }
 
 function parseStartIndex(rawValue) {
@@ -236,6 +239,16 @@ async function initializeFromQuery() {
 
 function handleQuerySyncToggle() {
   setQuerySyncEnabled(!state.querySyncEnabled);
+  syncPatternToQuery();
+}
+
+function handleQuerySyncCheckboxChange(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) {
+    return;
+  }
+
+  setQuerySyncEnabled(target.checked);
   syncPatternToQuery();
 }
 
@@ -367,7 +380,12 @@ function handleArrowNavigation(event) {
 form.addEventListener("submit", handleSubmit);
 prevBtn.addEventListener("click", goPrevious);
 nextBtn.addEventListener("click", goNext);
-querySyncToggleBtn.addEventListener("click", handleQuerySyncToggle);
+if (querySyncToggleBtn) {
+  querySyncToggleBtn.addEventListener("click", handleQuerySyncToggle);
+}
+if (querySyncInput) {
+  querySyncInput.addEventListener("change", handleQuerySyncCheckboxChange);
+}
 window.addEventListener("keydown", handleArrowNavigation);
 themeModeInputs.forEach((input) => {
   input.addEventListener("change", handleThemeModeChange);
