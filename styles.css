@@ -67,6 +67,27 @@ body {
   margin: 0;
 }
 
+.query-sync-option {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  user-select: none;
+  font-size: 0.92rem;
+}
+
+.query-sync-icon {
+  line-height: 1;
+  font-size: 1rem;
+}
+
+.query-sync-option input {
+  inline-size: 16px;
+  block-size: 16px;
+  accent-color: var(--accent);
+}
+
 .input-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
@@ -240,6 +261,10 @@ button:disabled {
 
   .theme-switch {
     width: 100%;
+  }
+
+  .query-sync-option {
+    display: flex;
   }
 
   .viewer {

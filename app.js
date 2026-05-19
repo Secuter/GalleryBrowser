@@ -5,9 +5,12 @@ const message = document.getElementById("message");
 const image = document.getElementById("gallery-image");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
+const querySyncInput = document.getElementById("query-sync");
 const themeModeInputs = [...document.querySelectorAll('input[name="theme-mode"]')];
 
 const THEME_STORAGE_KEY = "gallery-theme";
+const URL_PATTERN_PARAM = "pattern";
+const URL_INDEX_PARAM = "index";
 const root = document.documentElement;
 const darkSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -134,6 +137,91 @@ function updateUi() {
   nextBtn.disabled = !state.pattern || (state.maxIndex !== null && state.currentIndex >= state.maxIndex);
 }
 
+function parseStartIndex(rawValue) {
+  const parsed = Number.parseInt(rawValue, 10);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    return 1;
+  }
+
+  return parsed;
+}
+
+function parsePatternInput(input) {
+  if (!input) {
+    return { pattern: "", error: "Inserisci un URL valido." };
+  }
+
+  let pattern = input;
+  if (!containsPlaceholder(pattern)) {
+    const detected = detectPatternFromUrl(input);
+    if (!detected) {
+      return { pattern: "", error: "Impossibile rilevare un blocco numerico da sostituire." };
+    }
+
+    pattern = detected;
+  }
+
+  const placeholders = extractPlaceholders(pattern);
+  if (placeholders.length === 0) {
+    return { pattern: "", error: "Pattern non valido: manca almeno un placeholder tra {}." };
+  }
+
+  return { pattern, placeholders, error: "" };
+}
+
+function syncPatternToQuery() {
+  const params = new URLSearchParams(window.location.search);
+
+  if (querySyncInput.checked && state.pattern) {
+    params.set(URL_PATTERN_PARAM, state.pattern);
+    params.set(URL_INDEX_PARAM, String(state.currentIndex));
+  } else {
+    params.delete(URL_PATTERN_PARAM);
+    params.delete(URL_INDEX_PARAM);
+  }
+
+  const nextSearch = params.toString();
+  const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ""}${window.location.hash}`;
+  history.replaceState(null, "", nextUrl);
+}
+
+async function loadPattern(pattern, startIndex, loadingMessage) {
+  const parsed = parsePatternInput(pattern.trim());
+  if (parsed.error) {
+    setMessage(parsed.error);
+    return false;
+  }
+
+  state.pattern = parsed.pattern;
+  state.placeholders = parsed.placeholders;
+  resetNavigationState();
+  state.currentIndex = parseStartIndex(startIndex);
+  urlInput.value = parsed.pattern;
+
+  setMessage(loadingMessage);
+  updateUi();
+  await renderCurrentIndex();
+  syncPatternToQuery();
+  return true;
+}
+
+function getStartupParams() {
+  const params = new URLSearchParams(window.location.search);
+  const pattern = (params.get(URL_PATTERN_PARAM) || "").trim();
+  const index = parseStartIndex(params.get(URL_INDEX_PARAM));
+  return { pattern, index };
+}
+
+async function initializeFromQuery() {
+  const startup = getStartupParams();
+  if (!startup.pattern) {
+    return;
+  }
+
+  querySyncInput.checked = true;
+  await loadPattern(startup.pattern, startup.index, "Pattern caricato dall'URL.");
+}
+
 function probeImage(url) {
   return new Promise((resolve) => {
     const probe = new Image();
@@ -200,36 +288,7 @@ async function handleSubmit(event) {
   event.preventDefault();
 
   const input = urlInput.value.trim();
-  if (!input) {
-    setMessage("Inserisci un URL valido.");
-    return;
-  }
-
-  let pattern = input;
-  if (!containsPlaceholder(pattern)) {
-    const detected = detectPatternFromUrl(input);
-    if (!detected) {
-      setMessage("Impossibile rilevare un blocco numerico da sostituire.");
-      return;
-    }
-
-    pattern = detected;
-  }
-
-  const placeholders = extractPlaceholders(pattern);
-  if (placeholders.length === 0) {
-    setMessage("Pattern non valido: manca almeno un placeholder tra {}.");
-    return;
-  }
-
-  state.pattern = pattern;
-  state.placeholders = placeholders;
-  resetNavigationState();
-  urlInput.value = pattern;
-
-  setMessage("Pattern caricato. Provo a mostrare la prima immagine...");
-  updateUi();
-  await renderCurrentIndex();
+  await loadPattern(input, 1, "Pattern caricato. Provo a mostrare la prima immagine...");
 }
 
 async function goPrevious() {
@@ -240,6 +299,7 @@ async function goPrevious() {
   state.currentIndex -= 1;
   setMessage("");
   await renderCurrentIndex();
+  syncPatternToQuery();
 }
 
 async function goNext() {
@@ -259,6 +319,7 @@ async function goNext() {
 
   state.currentIndex = target;
   await renderCurrentIndex();
+  syncPatternToQuery();
 }
 
 function isTypingTarget(target) {
@@ -289,6 +350,7 @@ function handleArrowNavigation(event) {
 form.addEventListener("submit", handleSubmit);
 prevBtn.addEventListener("click", goPrevious);
 nextBtn.addEventListener("click", goNext);
+querySyncInput.addEventListener("change", syncPatternToQuery);
 window.addEventListener("keydown", handleArrowNavigation);
 themeModeInputs.forEach((input) => {
   input.addEventListener("change", handleThemeModeChange);
@@ -297,3 +359,4 @@ darkSchemeQuery.addEventListener("change", handleSystemThemeChange);
 
 initializeTheme();
 updateUi();
+void initializeFromQuery();
