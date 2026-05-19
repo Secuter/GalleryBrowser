@@ -261,9 +261,35 @@ async function goNext() {
   await renderCurrentIndex();
 }
 
+function isTypingTarget(target) {
+  if (!(target instanceof Element)) {
+    return false;
+  }
+
+  return target.matches("input, textarea, select, [contenteditable='true']");
+}
+
+function handleArrowNavigation(event) {
+  if (!state.pattern || isTypingTarget(event.target)) {
+    return;
+  }
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    void goPrevious();
+    return;
+  }
+
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    void goNext();
+  }
+}
+
 form.addEventListener("submit", handleSubmit);
 prevBtn.addEventListener("click", goPrevious);
 nextBtn.addEventListener("click", goNext);
+window.addEventListener("keydown", handleArrowNavigation);
 themeModeInputs.forEach((input) => {
   input.addEventListener("change", handleThemeModeChange);
 });
