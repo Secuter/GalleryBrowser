@@ -77,6 +77,10 @@ function handleSystemThemeChange() {
 }
 
 function setMessage(text) {
+  if (!message) {
+    return;
+  }
+
   message.textContent = text;
 }
 
