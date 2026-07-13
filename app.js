@@ -3,10 +3,13 @@ const urlInput = document.getElementById("url-input");
 // const indexOutput = document.getElementById("index-output");
 const message = document.getElementById("message");
 const image = document.getElementById("gallery-image");
+const appShell = document.querySelector(".app-shell");
+const imageStage = document.querySelector(".image-stage");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
 const querySyncToggleBtn = document.getElementById("query-sync-toggle");
 const querySyncInput = document.getElementById("query-sync");
+const fullscreenToggleBtn = document.getElementById("fullscreen-toggle");
 const themeModeInputs = [...document.querySelectorAll('input[name="theme-mode"]')];
 
 const THEME_STORAGE_KEY = "gallery-theme";
@@ -22,6 +25,14 @@ const state = {
   maxIndex: null,
   cache: new Map(),
   querySyncEnabled: false,
+  fullscreenEnabled: false,
+};
+
+const swipeState = {
+  pointerId: null,
+  startX: 0,
+  startY: 0,
+  active: false,
 };
 
 function normalizeThemeMode(value) {
@@ -143,6 +154,20 @@ function updateUi() {
   nextBtn.disabled = !state.pattern || (state.maxIndex !== null && state.currentIndex >= state.maxIndex);
 }
 
+function updateFullscreenUi() {
+  if (!fullscreenToggleBtn) {
+    return;
+  }
+
+  fullscreenToggleBtn.setAttribute("aria-pressed", String(state.fullscreenEnabled));
+  fullscreenToggleBtn.setAttribute(
+    "aria-label",
+    state.fullscreenEnabled ? "Esci dallo schermo intero" : "Attiva schermo intero"
+  );
+  fullscreenToggleBtn.title = state.fullscreenEnabled ? "Esci dallo schermo intero" : "Attiva schermo intero";
+  fullscreenToggleBtn.textContent = state.fullscreenEnabled ? "⤡" : "⛶";
+}
+
 function setQuerySyncEnabled(enabled) {
   state.querySyncEnabled = Boolean(enabled);
 
@@ -254,6 +279,48 @@ function handleQuerySyncCheckboxChange(event) {
 
   setQuerySyncEnabled(target.checked);
   syncPatternToQuery();
+}
+
+function isFullscreenActive() {
+  return document.fullscreenElement === appShell;
+}
+
+function syncFullscreenState() {
+  state.fullscreenEnabled = isFullscreenActive();
+  updateFullscreenUi();
+}
+
+async function enterFullscreen() {
+  if (!appShell || !appShell.requestFullscreen || isFullscreenActive()) {
+    return;
+  }
+
+  try {
+    await appShell.requestFullscreen();
+  } catch {
+    syncFullscreenState();
+  }
+}
+
+async function exitFullscreen() {
+  if (!document.fullscreenElement) {
+    return;
+  }
+
+  try {
+    await document.exitFullscreen();
+  } catch {
+    syncFullscreenState();
+  }
+}
+
+async function toggleFullscreen() {
+  if (isFullscreenActive()) {
+    await exitFullscreen();
+    return;
+  }
+
+  await enterFullscreen();
 }
 
 function probeImage(url) {
@@ -381,6 +448,56 @@ function handleArrowNavigation(event) {
   }
 }
 
+function handleFullscreenChange() {
+  syncFullscreenState();
+}
+
+function handleSwipeStart(event) {
+  if (!event.isPrimary || event.pointerType !== "touch") {
+    return;
+  }
+
+  swipeState.pointerId = event.pointerId;
+  swipeState.startX = event.clientX;
+  swipeState.startY = event.clientY;
+  swipeState.active = true;
+}
+
+function handleSwipeEnd(event) {
+  if (!swipeState.active || swipeState.pointerId !== event.pointerId) {
+    return;
+  }
+
+  swipeState.active = false;
+  swipeState.pointerId = null;
+
+  const deltaX = event.clientX - swipeState.startX;
+  const deltaY = event.clientY - swipeState.startY;
+  const horizontalDistance = Math.abs(deltaX);
+  const verticalDistance = Math.abs(deltaY);
+  const swipeThreshold = 40;
+
+  if (horizontalDistance < swipeThreshold || horizontalDistance <= verticalDistance) {
+    return;
+  }
+
+  if (deltaX < 0) {
+    void goNext();
+    return;
+  }
+
+  void goPrevious();
+}
+
+function handleSwipeCancel(event) {
+  if (swipeState.pointerId !== event.pointerId) {
+    return;
+  }
+
+  swipeState.active = false;
+  swipeState.pointerId = null;
+}
+
 form.addEventListener("submit", handleSubmit);
 prevBtn.addEventListener("click", goPrevious);
 nextBtn.addEventListener("click", goNext);
@@ -390,7 +507,19 @@ if (querySyncToggleBtn) {
 if (querySyncInput) {
   querySyncInput.addEventListener("change", handleQuerySyncCheckboxChange);
 }
+if (fullscreenToggleBtn) {
+  fullscreenToggleBtn.addEventListener("click", () => {
+    void toggleFullscreen();
+  });
+}
+if (imageStage) {
+  imageStage.addEventListener("pointerdown", handleSwipeStart);
+  imageStage.addEventListener("pointerup", handleSwipeEnd);
+  imageStage.addEventListener("pointercancel", handleSwipeCancel);
+  imageStage.addEventListener("pointerleave", handleSwipeCancel);
+}
 window.addEventListener("keydown", handleArrowNavigation);
+document.addEventListener("fullscreenchange", handleFullscreenChange);
 themeModeInputs.forEach((input) => {
   input.addEventListener("change", handleThemeModeChange);
 });
@@ -398,5 +527,6 @@ darkSchemeQuery.addEventListener("change", handleSystemThemeChange);
 
 initializeTheme();
 setQuerySyncEnabled(false);
+syncFullscreenState();
 updateUi();
 void initializeFromQuery();

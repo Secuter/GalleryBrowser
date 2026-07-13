@@ -63,13 +63,42 @@ body {
   gap: 8px;
 }
 
+.app-shell:fullscreen {
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  grid-template-rows: 1fr;
+}
+
+.app-shell:fullscreen #url-input,
+.app-shell:fullscreen button[type="submit"] {
+  display: none;
+}
+
+.app-shell:fullscreen .viewer {
+  min-height: 100vh;
+  padding: 10px;
+}
+
+.app-shell:fullscreen .image-stage {
+  min-height: calc(100vh - 20px);
+}
+
+.app-shell:fullscreen #gallery-image {
+  max-height: calc(100vh - 32px);
+}
+
 .controls {
   margin: 0;
 }
 
 .input-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
   gap: 8px;
   align-items: center;
 }
@@ -187,6 +216,39 @@ button[type="submit"] {
   outline-offset: 1px;
 }
 
+.fullscreen-toggle {
+  min-width: 42px;
+  min-height: 34px;
+  padding: 6px;
+  border: 1px solid rgba(27, 29, 34, 0.25);
+  border-radius: 12px;
+  background: var(--control-bg);
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.fullscreen-toggle[aria-pressed="true"] {
+  color: var(--accent);
+  background: rgba(27, 29, 34, 0.08);
+  border-color: rgba(202, 63, 25, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+:root[data-theme="dark"] .fullscreen-toggle[aria-pressed="true"] {
+  background: rgba(255, 106, 58, 0.18);
+  border-color: rgba(255, 106, 58, 0.52);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.fullscreen-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -229,6 +291,10 @@ button:disabled {
   gap: 10px;
   align-items: center;
   min-height: 0;
+}
+
+.image-stage {
+  touch-action: pan-y;
 }
 
 .nav-btn {
@@ -301,5 +367,17 @@ button:disabled {
   .nav-btn {
     width: 100%;
     border-radius: 12px;
+  }
+
+  .app-shell:fullscreen .viewer {
+    padding: 8px;
+  }
+
+  .app-shell:fullscreen .image-stage {
+    min-height: calc(100vh - 16px);
+  }
+
+  .app-shell:fullscreen #gallery-image {
+    max-height: calc(100vh - 24px);
   }
 }
