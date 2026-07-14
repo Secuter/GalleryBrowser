@@ -105,10 +105,11 @@ body {
   height: 56px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  background: rgba(18, 24, 31, 0.42);
+  background: rgba(18, 24, 31, 0.25);
   color: #fff;
   backdrop-filter: blur(10px);
   transform: translateY(-50%);
+  text-align: center;
 }
 
 .app-shell:fullscreen .nav-btn:first-of-type {
